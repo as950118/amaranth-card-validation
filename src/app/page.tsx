@@ -101,7 +101,7 @@ export default function Home() {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">2. 검증 규칙</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• 점심/저녁 지출: "점심, {사원명}" 형식</li>
+                    <li>• 점심/저녁 지출: "점심, 사원명" 형식</li>
                     <li>• 사원코드와 내용의 사원명 일치</li>
                     <li>• 부가세 0원이 아니어야 함</li>
                     <li>• 같은 날짜 지출 그룹화 표시</li>
