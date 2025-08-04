@@ -96,7 +96,7 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
     }
   }
   
-  // 3. 같은 날짜 + 지출용도(점심/저녁) 그룹화
+  // 3. 같은 날짜 + 지출용도(점심/저녁) 그룹화 (2개 이상일 때만)
   const mealExpenses = data.filter(row => 
     row.지출용도.includes('점심') || row.지출용도.includes('저녁')
   );
@@ -113,13 +113,16 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
   
   const groupedExpenses: GroupedExpense[] = [];
   groupedMap.forEach((items, key) => {
-    const [date, purpose] = key.split('_');
-    groupedExpenses.push({
-      date,
-      purpose,
-      count: items.length,
-      items
-    });
+    // 2개 이상일 때만 그룹에 포함
+    if (items.length >= 2) {
+      const [date, purpose] = key.split('_');
+      groupedExpenses.push({
+        date,
+        purpose,
+        count: items.length,
+        items
+      });
+    }
   });
   
   // 날짜순으로 정렬
