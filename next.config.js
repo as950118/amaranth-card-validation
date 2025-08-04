@@ -18,11 +18,6 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   
-  // 성능 최적화
-  experimental: {
-    optimizeCss: true,
-  },
-  
   // 압축 설정
   compress: true,
   

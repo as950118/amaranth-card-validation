@@ -54,11 +54,11 @@
   
   /* 부드러운 애니메이션 */
   .transition-all {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
   }
   
   /* 호버 효과 개선 */
-  .hover\:scale-105:hover {
+  .hover-scale-105:hover {
     transform: scale(1.05);
   }
   
@@ -70,11 +70,6 @@
   .shadow-2xl {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
-  
-  /* 백드롭 블러 효과 */
-  .backdrop-blur-sm {
-    backdrop-filter: blur(4px);
-  }
 }
 
 /* 기본 스타일 */
@@ -84,7 +79,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  background: #f8fafc;
   min-height: 100vh;
 }
 
@@ -94,18 +89,18 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+  background: #f1f5f9;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
+  background: #cbd5e1;
   border-radius: 4px;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #94a3b8, #64748b);
+  background: #94a3b8;
 }
 
 /* 그라데이션 애니메이션 */
@@ -144,7 +139,7 @@ body {
 
 /* 카드 호버 효과 */
 .card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 }
 
 .card-hover:hover {

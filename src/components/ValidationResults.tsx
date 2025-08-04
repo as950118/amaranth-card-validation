@@ -22,7 +22,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
     <div className="space-y-8">
       {/* 통계 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
+        <div className="bg-white/80 rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
               <BarChartIcon className="text-white" size="sm" />
@@ -32,7 +32,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
           <div className="text-sm text-slate-600">전체 행 수</div>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
+        <div className="bg-white/80 rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="w-8 h-8 bg-gradient-to-br from-red-500 via-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
               <XIcon className="text-white" size="sm" />
@@ -42,7 +42,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
           <div className="text-sm text-slate-600">오류</div>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
+        <div className="bg-white/80 rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 via-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
               <WarningIcon className="text-white" size="sm" />
@@ -52,7 +52,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
           <div className="text-sm text-slate-600">경고</div>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
+        <div className="bg-white/80 rounded-2xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
               <CheckCircleIcon className="text-white" size="sm" />
@@ -64,7 +64,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
       </div>
 
       {/* 검증 결과 요약 */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/60">
+      <div className="bg-white/80 rounded-3xl shadow-xl border border-slate-200/60">
         <div className="px-8 py-6 border-b border-slate-200/60">
           <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">검증 결과 요약</h3>
         </div>
@@ -142,7 +142,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
       </div>
 
       {/* 그룹화된 지출 내역 */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/60">
+      <div className="bg-white/80 rounded-3xl shadow-xl border border-slate-200/60">
         <div className="px-8 py-6 border-b border-slate-200/60">
           <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">같은 날짜에 같은 지출용도 그룹</h3>
         </div>
@@ -166,7 +166,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
                   </div>
                   <div className="space-y-3">
                     {group.items.map((item, itemIndex) => (
-                      <div key={itemIndex} className="flex items-center justify-between p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300">
+                      <div key={itemIndex} className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300">
                         <div className="flex-1">
                           <div className="flex items-center gap-3">
                             <span className="text-sm font-medium text-slate-900">

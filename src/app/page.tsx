@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30">
       {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
+      <header className="bg-white/80 border-b border-slate-200/60 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="space-y-2">
@@ -68,7 +68,7 @@ export default function Home() {
         <div className="space-y-12">
           {/* 파일 업로드 섹션 */}
           {!data && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/60 p-12">
+            <div className="bg-white/80 rounded-3xl shadow-xl border border-slate-200/60 p-12">
               <div className="text-center max-w-2xl mx-auto">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                   <DocumentIcon className="text-white" size="xl" />
@@ -112,7 +112,7 @@ export default function Home() {
           {/* 사용법 안내 */}
           {!data && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 p-8 hover:shadow-2xl transition-all duration-300">
+              <div className="bg-white/80 rounded-2xl shadow-xl border border-slate-200/60 p-8 hover:shadow-2xl transition-all duration-300">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg">
                     <DocumentIcon className="text-white" size="md" />
@@ -138,7 +138,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/60 p-8 hover:shadow-2xl transition-all duration-300">
+              <div className="bg-white/80 rounded-2xl shadow-xl border border-slate-200/60 p-8 hover:shadow-2xl transition-all duration-300">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg">
                     <CheckCircleIcon className="text-white" size="md" />
@@ -170,7 +170,7 @@ export default function Home() {
       </main>
 
       {/* 푸터 */}
-      <footer className="bg-white/80 backdrop-blur-sm border-t border-slate-200/60 mt-20 shadow-sm">
+      <footer className="bg-white/80 border-t border-slate-200/60 mt-20 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
