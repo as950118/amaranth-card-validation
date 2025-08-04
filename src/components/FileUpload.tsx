@@ -56,8 +56,8 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div
-        className={`relative transition-all duration-300 ${
-          isDragOver ? 'scale-105' : 'scale-100'
+        className={`transition-all duration-300 ${
+          isDragOver ? 'scale-[1.02]' : 'scale-100'
         }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -65,30 +65,30 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
       >
         <label
           htmlFor="dropzone-file"
-          className={`flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-3xl cursor-pointer transition-all duration-300 ${
+          className={`flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
             isDragOver
               ? 'border-blue-400 bg-blue-50/50'
-              : 'border-gray-300 bg-gray-50/50 hover:border-blue-300 hover:bg-blue-50/30'
+              : 'border-slate-300 bg-slate-50/50 hover:border-blue-300 hover:bg-blue-50/30'
           }`}
         >
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             {isLoading ? (
               <div className="flex flex-col items-center">
-                <div className="relative">
-                  <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <div className="relative mb-4">
+                  <div className="w-12 h-12 border-3 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full animate-pulse"></div>
+                    <div className="w-6 h-6 bg-blue-600 rounded-full animate-pulse"></div>
                   </div>
                 </div>
-                <span className="mt-4 text-lg font-medium text-gray-600">파일 처리 중...</span>
-                <span className="text-sm text-gray-500">잠시만 기다려주세요</span>
+                <span className="text-lg font-medium text-slate-700">파일 처리 중...</span>
+                <span className="text-sm text-slate-500 mt-1">잠시만 기다려주세요</span>
               </div>
             ) : (
               <>
                 <div className="relative mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                     <svg
-                      className="w-10 h-10 text-white"
+                      className="w-8 h-8 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -103,21 +103,21 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
                   </div>
                   {isDragOver && (
                     <div className="absolute inset-0 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                       </svg>
                     </div>
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="mb-2 text-xl font-semibold text-gray-700">
+                  <p className="mb-3 text-lg font-semibold text-slate-700">
                     <span className="font-bold">클릭하여 업로드</span> 또는 드래그 앤 드롭
                   </p>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-slate-500 mb-6">
                     엑셀 파일 (.xlsx, .xls)을 업로드해주세요
                   </p>
-                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl shadow-lg hover:bg-slate-800 transition-colors font-medium">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     파일 선택
@@ -138,9 +138,9 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
       </div>
       
       {error && (
-        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-2xl animate-in slide-in-from-top-2">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <p className="text-sm text-red-600">{error}</p>
