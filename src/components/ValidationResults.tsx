@@ -28,7 +28,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
               <BarChartIcon className="text-white" size="sm" />
             </div>
           </div>
-          <div className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-1">{totalRows}</div>
+          <div className="text-3xl font-bold text-slate-900 mb-1">{totalRows}</div>
           <div className="text-sm text-slate-600">전체 행 수</div>
         </div>
         
@@ -38,7 +38,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
               <XIcon className="text-white" size="sm" />
             </div>
           </div>
-          <div className="text-3xl font-bold bg-gradient-to-r from-red-600 via-pink-600 to-rose-600 bg-clip-text text-transparent mb-1">{errorCount}</div>
+          <div className="text-3xl font-bold text-red-600 mb-1">{errorCount}</div>
           <div className="text-sm text-slate-600">오류</div>
         </div>
         
@@ -48,7 +48,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
               <WarningIcon className="text-white" size="sm" />
             </div>
           </div>
-          <div className="text-3xl font-bold bg-gradient-to-r from-yellow-600 via-orange-600 to-amber-600 bg-clip-text text-transparent mb-1">{warningCount}</div>
+          <div className="text-3xl font-bold text-yellow-600 mb-1">{warningCount}</div>
           <div className="text-sm text-slate-600">경고</div>
         </div>
         
@@ -58,7 +58,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
               <CheckCircleIcon className="text-white" size="sm" />
             </div>
           </div>
-          <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent mb-1">{normalCount}</div>
+          <div className="text-3xl font-bold text-emerald-600 mb-1">{normalCount}</div>
           <div className="text-sm text-slate-600">정상</div>
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function ValidationResults({ result }: ValidationResultsProps) {
                             </span>
                           </div>
                         </div>
-                        <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                        <span className="text-sm font-semibold text-emerald-600">
                           {item.합계.toLocaleString()}원
                         </span>
                       </div>
