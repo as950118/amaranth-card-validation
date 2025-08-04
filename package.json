@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@svgr/webpack": "^8.1.0",
     "file-saver": "^2.0.5",
     "next": "^14.0.0",
     "papaparse": "^5.4.1",
