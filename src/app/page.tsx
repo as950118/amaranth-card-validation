@@ -4,6 +4,12 @@ import { useState } from 'react';
 import FileUpload from '@/components/FileUpload';
 import ValidationResults from '@/components/ValidationResults';
 import { ExpenseRecord, validateCardExpenses } from '@/lib/validation';
+import { 
+  DocumentIcon, 
+  PlusIcon, 
+  CheckCircleIcon, 
+  ArrowUpIcon 
+} from '@/components/icons';
 
 export default function Home() {
   const [data, setData] = useState<ExpenseRecord[] | null>(null);
@@ -65,9 +71,7 @@ export default function Home() {
             <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-12">
               <div className="text-center max-w-2xl mx-auto">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
+                  <DocumentIcon className="text-white" size="xl" />
                 </div>
                 <h2 className="text-3xl font-bold text-slate-900 mb-4">
                   엑셀 파일 업로드
@@ -97,9 +101,7 @@ export default function Home() {
                   }}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors font-medium"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                  </svg>
+                  <PlusIcon className="text-white" size="sm" />
                   새 파일 업로드
                 </button>
               </div>
@@ -113,9 +115,7 @@ export default function Home() {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
+                    <DocumentIcon className="text-white" size="md" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900">파일 준비</h3>
                 </div>
@@ -137,9 +137,7 @@ export default function Home() {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                    <CheckCircleIcon className="text-white" size="md" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900">검증 규칙</h3>
                 </div>
@@ -172,9 +170,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="text-center">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
+              <ArrowUpIcon className="text-white" size="lg" />
             </div>
             <h3 className="text-xl font-semibold text-slate-900 mb-2">법인카드 지출 내역 검증 시스템</h3>
             <p className="text-slate-600">엑셀 파일을 업로드하여 지출 내역을 검증하세요</p>

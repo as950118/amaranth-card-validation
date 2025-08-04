@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { parseExcelData, ExpenseRecord } from '@/lib/validation';
+import { UploadIcon, CheckIcon, PlusIcon, AlertIcon } from './icons';
 
 interface FileUploadProps {
   onDataLoaded: (data: ExpenseRecord[]) => void;
@@ -87,25 +88,11 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
               <>
                 <div className="relative mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
+                    <UploadIcon className="text-white" size="lg" />
                   </div>
                   {isDragOver && (
                     <div className="absolute inset-0 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
+                      <CheckIcon className="text-blue-600" size="sm" />
                     </div>
                   )}
                 </div>
@@ -117,9 +104,7 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
                     엑셀 파일 (.xlsx, .xls)을 업로드해주세요
                   </p>
                   <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl shadow-lg hover:bg-slate-800 transition-colors font-medium">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
+                    <PlusIcon className="text-white" size="sm" />
                     파일 선택
                   </div>
                 </div>
@@ -140,9 +125,7 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
       {error && (
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
           <div className="flex items-center gap-3">
-            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+            <AlertIcon className="text-red-500 flex-shrink-0" size="sm" />
             <p className="text-sm text-red-600">{error}</p>
           </div>
         </div>
