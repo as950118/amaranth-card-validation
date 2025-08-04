@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { parseExcelData, ExpenseRecord } from '@/lib/validation';
+import { parseFileData, ExpenseRecord } from '@/lib/validation';
 import { UploadIcon, CheckIcon, PlusIcon, AlertIcon } from './icons';
 
 interface FileUploadProps {
@@ -45,10 +45,11 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
     setError(null);
 
     try {
-      const data = await parseExcelData(file);
+      const data = await parseFileData(file);
       onDataLoaded(data);
     } catch (err) {
-      setError('파일을 읽는 중 오류가 발생했습니다. 엑셀 파일(.xlsx)인지 확인해주세요.');
+      const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+      setError(`파일을 읽는 중 오류가 발생했습니다: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +102,7 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
                     <span className="font-bold">클릭하여 업로드</span> 또는 드래그 앤 드롭
                   </p>
                   <p className="text-sm text-slate-500 mb-6">
-                    엑셀 파일 (.xlsx, .xls)을 업로드해주세요
+                    엑셀 파일 (.xlsx, .xls) 또는 텍스트 파일 (.txt)을 업로드해주세요
                   </p>
                   <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl shadow-lg hover:bg-slate-800 transition-colors font-medium">
                     <PlusIcon className="text-white" size="sm" />
@@ -115,7 +116,7 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
             id="dropzone-file"
             type="file"
             className="hidden"
-            accept=".xlsx,.xls"
+            accept=".xlsx,.xls,.txt"
             onChange={handleFileChange}
             disabled={isLoading}
           />

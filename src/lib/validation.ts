@@ -141,6 +141,90 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
   };
 }
 
+// 텍스트 파일 파싱 함수
+export function parseTextData(content: string): ExpenseRecord[] {
+  const lines = content.split('\n').map(line => line.trim());
+  const records: ExpenseRecord[] = [];
+  
+  // 헤더 찾기
+  let dataStartIndex = -1;
+  let headerFound = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line === '순번') {
+      // 헤더 시작 찾음
+      headerFound = true;
+      // 헤더 다음의 빈 줄들을 건너뛰고 데이터 시작점 찾기
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j] !== '' && !isNaN(Number(lines[j]))) {
+          dataStartIndex = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  if (!headerFound || dataStartIndex === -1) {
+    throw new Error('올바른 형식의 텍스트 파일이 아닙니다. 헤더를 찾을 수 없습니다.');
+  }
+  
+  // 데이터 파싱 - 각 레코드는 11개의 필드로 구성
+  let currentRecord: any = {};
+  let fieldIndex = 0;
+  const fieldOrder = ['순번', '거래일자', '지출용도', '내용', '거래처', '공급가액', '부가세', '합계', '증빙', '프로젝트', '사원코드'];
+  
+  for (let i = dataStartIndex; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // 빈 줄이면 건너뛰기
+    if (line === '') {
+      continue;
+    }
+    
+    // 필드 값 설정
+    const fieldName = fieldOrder[fieldIndex];
+    if (fieldName) {
+      let value = line;
+      
+      // 숫자 필드 처리
+      if (['공급가액', '부가세', '합계'].includes(fieldName)) {
+        value = value.replace(/,/g, '');
+        currentRecord[fieldName] = Number(value) || 0;
+      } else {
+        currentRecord[fieldName] = value;
+      }
+      
+      fieldIndex++;
+      
+      // 모든 필드가 채워지면 레코드 완성
+      if (fieldIndex >= fieldOrder.length) {
+        // 필수 필드 검증
+        if (currentRecord.순번 && currentRecord.거래일자 && currentRecord.지출용도) {
+          records.push(currentRecord as ExpenseRecord);
+        }
+        currentRecord = {};
+        fieldIndex = 0;
+      }
+    }
+  }
+  
+  // 마지막 레코드 처리
+  if (Object.keys(currentRecord).length > 0 && fieldIndex >= fieldOrder.length) {
+    if (currentRecord.순번 && currentRecord.거래일자 && currentRecord.지출용도) {
+      records.push(currentRecord as ExpenseRecord);
+    }
+  }
+  
+  if (records.length === 0) {
+    throw new Error('파싱된 데이터가 없습니다. 파일 형식을 확인해주세요.');
+  }
+  
+  return records;
+}
+
+// 엑셀 파일 파싱 함수
 export function parseExcelData(file: File): Promise<ExpenseRecord[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -176,5 +260,33 @@ export function parseExcelData(file: File): Promise<ExpenseRecord[]> {
     
     reader.onerror = () => reject(new Error('파일 읽기 실패'));
     reader.readAsArrayBuffer(file);
+  });
+}
+
+// 통합 파일 파싱 함수 (파일 타입에 따라 자동 처리)
+export function parseFileData(file: File): Promise<ExpenseRecord[]> {
+  return new Promise((resolve, reject) => {
+    const fileName = file.name.toLowerCase();
+    
+    if (fileName.endsWith('.txt')) {
+      // 텍스트 파일 처리
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const records = parseTextData(content);
+          resolve(records);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('텍스트 파일 읽기 실패'));
+      reader.readAsText(file, 'utf-8');
+    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      // 엑셀 파일 처리
+      parseExcelData(file).then(resolve).catch(reject);
+    } else {
+      reject(new Error('지원하지 않는 파일 형식입니다. .txt, .xlsx, .xls 파일만 지원합니다.'));
+    }
   });
 } 

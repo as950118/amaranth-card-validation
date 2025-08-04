@@ -33,7 +33,7 @@ export default function Home() {
                 <span className="block text-blue-600">검증 시스템</span>
               </h1>
               <p className="text-lg text-slate-600 max-w-2xl">
-                엑셀 파일을 업로드하여 법인카드 지출 내역을 빠르고 정확하게 검증하세요
+                엑셀 파일 또는 텍스트 파일을 업로드하여 법인카드 지출 내역을 빠르고 정확하게 검증하세요
               </p>
             </div>
             <div className="lg:w-80">
@@ -74,10 +74,10 @@ export default function Home() {
                   <DocumentIcon className="text-white" size="xl" />
                 </div>
                 <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                  엑셀 파일 업로드
+                  파일 업로드
                 </h2>
                 <p className="text-lg text-slate-600 mb-8">
-                  법인카드 지출 내역이 포함된 엑셀 파일을 업로드해주세요
+                  법인카드 지출 내역이 포함된 엑셀 파일 또는 텍스트 파일을 업로드해주세요
                 </p>
                 <FileUpload onDataLoaded={handleDataLoaded} />
               </div>
@@ -122,7 +122,7 @@ export default function Home() {
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-slate-700">엑셀 파일(.xlsx) 형식</span>
+                    <span className="text-slate-700">엑셀 파일(.xlsx, .xls) 또는 텍스트 파일(.txt) 형식</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -130,6 +130,10 @@ export default function Home() {
                   </div>
                   <div className="ml-5 text-sm text-slate-600 bg-slate-50 rounded-lg p-3">
                     순번, 거래일자, 지출용도, 내용, 거래처, 공급가액, 부가세, 합계, 증빙, 프로젝트, 사원코드
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-slate-700">텍스트 파일은 탭으로 구분된 형식 지원</span>
                   </div>
                 </div>
               </div>
@@ -173,7 +177,7 @@ export default function Home() {
               <ArrowUpIcon className="text-white" size="lg" />
             </div>
             <h3 className="text-xl font-semibold text-slate-900 mb-2">법인카드 지출 내역 검증 시스템</h3>
-            <p className="text-slate-600">엑셀 파일을 업로드하여 지출 내역을 검증하세요</p>
+            <p className="text-slate-600">엑셀 파일 또는 텍스트 파일을 업로드하여 지출 내역을 검증하세요</p>
           </div>
         </div>
       </footer>
