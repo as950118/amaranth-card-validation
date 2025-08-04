@@ -75,9 +75,9 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
             {isLoading ? (
               <div className="flex flex-col items-center">
                 <div className="relative mb-4">
-                  <div className="w-12 h-12 border-3 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+                  <div className="w-10 h-10 border-3 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 bg-blue-600 rounded-full animate-pulse"></div>
+                    <div className="w-5 h-5 bg-blue-600 rounded-full animate-pulse"></div>
                   </div>
                 </div>
                 <span className="text-lg font-medium text-slate-700">파일 처리 중...</span>
@@ -86,9 +86,9 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
             ) : (
               <>
                 <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                     <svg
-                      className="w-8 h-8 text-white"
+                      className="w-6 h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -103,7 +103,7 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
                   </div>
                   {isDragOver && (
                     <div className="absolute inset-0 bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                       </svg>
                     </div>
@@ -140,7 +140,7 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
       {error && (
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <p className="text-sm text-red-600">{error}</p>
