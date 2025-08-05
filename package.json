@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@datadog/browser-rum": "^6.17.0",
     "@svgr/webpack": "^8.1.0",
     "file-saver": "^2.0.5",
     "next": "^14.0.0",
