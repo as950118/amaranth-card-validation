@@ -4,6 +4,7 @@ import { useState } from 'react';
 import FileUpload from '@/components/FileUpload';
 import ValidationResults from '@/components/ValidationResults';
 import { ExpenseRecord, validateCardExpenses } from '@/lib/validation';
+import { sendCustomEvent } from '@/lib/datadog';
 import { 
   DocumentIcon, 
   PlusIcon, 
@@ -19,6 +20,14 @@ export default function Home() {
     setData(loadedData);
     const result = validateCardExpenses(loadedData);
     setValidationResult(result);
+    
+    // Datadog 이벤트 전송
+    sendCustomEvent('file_uploaded', {
+      recordCount: loadedData.length,
+      errorCount: result.errorCount,
+      warningCount: result.warningCount,
+      normalCount: result.normalCount,
+    });
   };
 
   return (
@@ -98,6 +107,7 @@ export default function Home() {
                   onClick={() => {
                     setData(null);
                     setValidationResult(null);
+                    sendCustomEvent('new_file_upload_clicked');
                   }}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-900 to-slate-700 text-white rounded-xl hover:from-slate-800 hover:to-slate-600 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
