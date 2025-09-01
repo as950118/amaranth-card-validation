@@ -84,7 +84,7 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
     }
   }
   
-  // 2. 부가세가 0원이 아닌지 확인
+  // 2. 부가세가 0원이 아닌지 확인 (단, 1원인 경우는 허용 - ama.txt에서 확인됨)
   for (let idx = 0; idx < data.length; idx++) {
     const row = data[idx];
     if (row.부가세 === 0) {
@@ -96,7 +96,47 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
     }
   }
   
-  // 3. 같은 날짜 + 지출용도(점심/저녁) 그룹화 (2개 이상일 때만)
+  // 3. 공급가액 + 부가세 = 합계 검증
+  for (let idx = 0; idx < data.length; idx++) {
+    const row = data[idx];
+    const calculatedTotal = row.공급가액 + row.부가세;
+    if (Math.abs(calculatedTotal - row.합계) > 1) { // 1원 차이는 허용 (반올림 오차)
+      warnings.push({
+        rowNum: idx + 2,
+        reason: `공급가액 + 부가세 ≠ 합계 (${row.공급가액} + ${row.부가세} ≠ ${row.합계})`,
+        content: `계산된 합계: ${calculatedTotal}, 실제 합계: ${row.합계}`
+      });
+    }
+  }
+  
+  // 4. 날짜 형식 검증
+  for (let idx = 0; idx < data.length; idx++) {
+    const row = data[idx];
+    const dateStr = row.거래일자.trim();
+    
+    // YYYY.MM.DD 형식 검증
+    const datePattern = /^\d{4}\.\d{2}\.\d{2}$/;
+    if (!datePattern.test(dateStr)) {
+      warnings.push({
+        rowNum: idx + 2,
+        reason: '날짜 형식이 예상과 다름 (예상: YYYY.MM.DD)',
+        content: `날짜: ${dateStr}`
+      });
+    } else {
+      // 유효한 날짜인지 확인
+      const [year, month, day] = dateStr.split('.').map(Number);
+      const date = new Date(year, month - 1, day);
+      if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+        warnings.push({
+          rowNum: idx + 2,
+          reason: '유효하지 않은 날짜',
+          content: `날짜: ${dateStr}`
+        });
+      }
+    }
+  }
+  
+  // 5. 같은 날짜 + 지출용도(점심/저녁) 그룹화 (2개 이상일 때만)
   const mealExpenses = data.filter(row => 
     row.지출용도.includes('점심') || row.지출용도.includes('저녁')
   );
@@ -146,7 +186,7 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
 
 // 텍스트 파일 파싱 함수
 export function parseTextData(content: string): ExpenseRecord[] {
-  const lines = content.split('\n').map(line => line.trim());
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line !== '');
   const records: ExpenseRecord[] = [];
   
   // 헤더 찾기
@@ -155,16 +195,10 @@ export function parseTextData(content: string): ExpenseRecord[] {
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (line === '순번') {
+    if (line.includes('순번') && line.includes('거래일자') && line.includes('지출용도')) {
       // 헤더 시작 찾음
       headerFound = true;
-      // 헤더 다음의 빈 줄들을 건너뛰고 데이터 시작점 찾기
-      for (let j = i + 1; j < lines.length; j++) {
-        if (lines[j] !== '' && !isNaN(Number(lines[j]))) {
-          dataStartIndex = j;
-          break;
-        }
-      }
+      dataStartIndex = i + 1;
       break;
     }
   }
@@ -173,11 +207,7 @@ export function parseTextData(content: string): ExpenseRecord[] {
     throw new Error('올바른 형식의 텍스트 파일이 아닙니다. 헤더를 찾을 수 없습니다.');
   }
   
-  // 데이터 파싱 - 각 레코드는 11개의 필드로 구성
-  let currentRecord: any = {};
-  let fieldIndex = 0;
-  const fieldOrder = ['순번', '거래일자', '지출용도', '내용', '거래처', '공급가액', '부가세', '합계', '증빙', '프로젝트', '사원코드'];
-  
+  // 데이터 파싱 - 탭으로 구분된 형식 처리
   for (let i = dataStartIndex; i < lines.length; i++) {
     const line = lines[i];
     
@@ -186,37 +216,34 @@ export function parseTextData(content: string): ExpenseRecord[] {
       continue;
     }
     
-    // 필드 값 설정
-    const fieldName = fieldOrder[fieldIndex];
-    if (fieldName) {
-      let value = line;
-      
-      // 숫자 필드 처리
-      if (['공급가액', '부가세', '합계'].includes(fieldName)) {
-        value = value.replace(/,/g, '');
-        currentRecord[fieldName] = Number(value) || 0;
-      } else {
-        currentRecord[fieldName] = value;
-      }
-      
-      fieldIndex++;
-      
-      // 모든 필드가 채워지면 레코드 완성
-      if (fieldIndex >= fieldOrder.length) {
+    // 탭으로 구분된 필드들을 분리
+    const fields = line.split('\t');
+    
+    // 필드 수가 충분한지 확인 (최소 11개)
+    if (fields.length >= 11) {
+      try {
+        const record: ExpenseRecord = {
+          순번: fields[0]?.trim() || '',
+          거래일자: fields[1]?.trim() || '',
+          지출용도: fields[2]?.trim() || '',
+          내용: fields[3]?.trim() || '',
+          거래처: fields[4]?.trim() || '',
+          공급가액: Number(fields[5]?.replace(/,/g, '') || '0') || 0,
+          부가세: Number(fields[6]?.replace(/,/g, '') || '0') || 0,
+          합계: Number(fields[7]?.replace(/,/g, '') || '0') || 0,
+          증빙: fields[8]?.trim() || '',
+          프로젝트: fields[9]?.trim() || '',
+          사원코드: fields[10]?.trim() || ''
+        };
+        
         // 필수 필드 검증
-        if (currentRecord.순번 && currentRecord.거래일자 && currentRecord.지출용도) {
-          records.push(currentRecord as ExpenseRecord);
+        if (record.순번 && record.거래일자 && record.지출용도) {
+          records.push(record);
         }
-        currentRecord = {};
-        fieldIndex = 0;
+      } catch (error) {
+        console.warn(`Row ${i + 1} 파싱 실패:`, error);
+        continue;
       }
-    }
-  }
-  
-  // 마지막 레코드 처리
-  if (Object.keys(currentRecord).length > 0 && fieldIndex >= fieldOrder.length) {
-    if (currentRecord.순번 && currentRecord.거래일자 && currentRecord.지출용도) {
-      records.push(currentRecord as ExpenseRecord);
     }
   }
   
