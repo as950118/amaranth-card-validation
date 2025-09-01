@@ -186,7 +186,7 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
 
 // 텍스트 파일 파싱 함수
 export function parseTextData(content: string): ExpenseRecord[] {
-  const lines = content.split('\n').map(line => line.trim()).filter(line => line !== '');
+  const lines = content.split('\n').map(line => line.trim());
   const records: ExpenseRecord[] = [];
   
   // 헤더 찾기
@@ -195,10 +195,16 @@ export function parseTextData(content: string): ExpenseRecord[] {
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (line.includes('순번') && line.includes('거래일자') && line.includes('지출용도')) {
+    if (line === '순번') {
       // 헤더 시작 찾음
       headerFound = true;
-      dataStartIndex = i + 1;
+      // 헤더 다음의 빈 줄들을 건너뛰고 데이터 시작점 찾기
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j] !== '' && !isNaN(Number(lines[j]))) {
+          dataStartIndex = j;
+          break;
+        }
+      }
       break;
     }
   }
@@ -207,33 +213,70 @@ export function parseTextData(content: string): ExpenseRecord[] {
     throw new Error('올바른 형식의 텍스트 파일이 아닙니다. 헤더를 찾을 수 없습니다.');
   }
   
-  // 데이터 파싱 - 탭으로 구분된 형식 처리
-  for (let i = dataStartIndex; i < lines.length; i++) {
-    const line = lines[i];
-    
-    // 빈 줄이면 건너뛰기
-    if (line === '') {
-      continue;
+  // 첫 번째 데이터 라인을 분석하여 구분자 타입 결정
+  let delimiter = 'newline'; // 기본값은 새 줄
+  let fieldCount = 0;
+  
+  // 헤더 다음부터 데이터가 시작되는지 확인
+  if (dataStartIndex < lines.length) {
+    // 새 줄로 구분된 형식인지 확인 (11개 필드가 연속으로 나오는지)
+    let consecutiveFields = 0;
+    let emptyLineCount = 0;
+    for (let i = dataStartIndex; i < Math.min(dataStartIndex + 22, lines.length); i++) {
+      if (lines[i] === '') {
+        emptyLineCount++;
+      } else if (lines[i] && !isNaN(Number(lines[i]))) {
+        consecutiveFields++;
+      } else {
+        break;
+      }
     }
     
-    // 탭으로 구분된 필드들을 분리
-    const fields = line.split('\t');
+    // 빈 줄이 포함된 경우 새 줄 형식으로 판단
+    if (emptyLineCount > 0) {
+      delimiter = 'newline';
+      fieldCount = 11; // 고정된 11개 필드
+    } else {
+      // 기존 방식: 탭이나 공백으로 구분된 형식
+      const firstDataLine = lines[dataStartIndex];
+      const tabFields = firstDataLine.split('\t');
+      const spaceFields = firstDataLine.split(/\s+/);
+      
+      if (tabFields.length >= 11) {
+        delimiter = 'tab';
+        fieldCount = tabFields.length;
+      } else if (spaceFields.length >= 11) {
+        delimiter = 'space';
+        fieldCount = spaceFields.length;
+      }
+    }
+  }
+  
+  console.log(`감지된 구분자: ${delimiter}, 필드 수: ${fieldCount}`);
+  
+  // 데이터 파싱
+  if (delimiter === 'newline') {
+    // 새 줄로 구분된 형식 (ama.txt와 동일) - 빈 줄 포함
+    // 각 레코드는 22줄로 구성 (11개 필드 + 11개 빈 줄)
+    const totalLines = lines.length - dataStartIndex;
+    const recordsCount = Math.floor(totalLines / 22);
     
-    // 필드 수가 충분한지 확인 (최소 11개)
-    if (fields.length >= 11) {
+    for (let recordIndex = 0; recordIndex < recordsCount; recordIndex++) {
+      const startLineIndex = dataStartIndex + (recordIndex * 22);
+      
       try {
         const record: ExpenseRecord = {
-          순번: fields[0]?.trim() || '',
-          거래일자: fields[1]?.trim() || '',
-          지출용도: fields[2]?.trim() || '',
-          내용: fields[3]?.trim() || '',
-          거래처: fields[4]?.trim() || '',
-          공급가액: Number(fields[5]?.replace(/,/g, '') || '0') || 0,
-          부가세: Number(fields[6]?.replace(/,/g, '') || '0') || 0,
-          합계: Number(fields[7]?.replace(/,/g, '') || '0') || 0,
-          증빙: fields[8]?.trim() || '',
-          프로젝트: fields[9]?.trim() || '',
-          사원코드: fields[10]?.trim() || ''
+          순번: lines[startLineIndex]?.trim() || '',
+          거래일자: lines[startLineIndex + 2]?.trim() || '', // 빈 줄 건너뛰기
+          지출용도: lines[startLineIndex + 4]?.trim() || '', // 빈 줄 건너뛰기
+          내용: lines[startLineIndex + 6]?.trim() || '', // 빈 줄 건너뛰기
+          거래처: lines[startLineIndex + 8]?.trim() || '', // 빈 줄 건너뛰기
+          공급가액: Number(lines[startLineIndex + 10]?.replace(/,/g, '') || '0') || 0, // 빈 줄 건너뛰기
+          부가세: Number(lines[startLineIndex + 12]?.replace(/,/g, '') || '0') || 0, // 빈 줄 건너뛰기
+          합계: Number(lines[startLineIndex + 14]?.replace(/,/g, '') || '0') || 0, // 빈 줄 건너뛰기
+          증빙: lines[startLineIndex + 16]?.trim() || '', // 빈 줄 건너뛰기
+          프로젝트: lines[startLineIndex + 18]?.trim() || '', // 빈 줄 건너뛰기
+          사원코드: lines[startLineIndex + 20]?.trim() || '' // 빈 줄 건너뛰기
         };
         
         // 필수 필드 검증
@@ -241,8 +284,56 @@ export function parseTextData(content: string): ExpenseRecord[] {
           records.push(record);
         }
       } catch (error) {
-        console.warn(`Row ${i + 1} 파싱 실패:`, error);
+        console.warn(`Record ${recordIndex + 1} 파싱 실패:`, error);
         continue;
+      }
+    }
+  } else {
+    // 기존 방식: 탭이나 공백으로 구분된 형식
+    for (let i = dataStartIndex; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // 빈 줄이면 건너뛰기
+      if (line === '') {
+        continue;
+      }
+      
+      let fields: string[];
+      
+      // 구분자에 따라 필드 분리
+      if (delimiter === 'space') {
+        // 공백으로 구분된 형식 (기존 방식)
+        fields = line.split(/\s+/);
+      } else {
+        // 탭으로 구분된 형식 (새로운 방식)
+        fields = line.split('\t');
+      }
+      
+      // 필드 수가 충분한지 확인 (최소 11개)
+      if (fields.length >= 11) {
+        try {
+          const record: ExpenseRecord = {
+            순번: fields[0]?.trim() || '',
+            거래일자: fields[1]?.trim() || '',
+            지출용도: fields[2]?.trim() || '',
+            내용: fields[3]?.trim() || '',
+            거래처: fields[4]?.trim() || '',
+            공급가액: Number(fields[5]?.replace(/,/g, '') || '0') || 0,
+            부가세: Number(fields[6]?.replace(/,/g, '') || '0') || 0,
+            합계: Number(fields[7]?.replace(/,/g, '') || '0') || 0,
+            증빙: fields[8]?.trim() || '',
+            프로젝트: fields[9]?.trim() || '',
+            사원코드: fields[10]?.trim() || ''
+          };
+          
+          // 필수 필드 검증
+          if (record.순번 && record.거래일자 && record.지출용도) {
+            records.push(record);
+          }
+        } catch (error) {
+          console.warn(`Row ${i + 1} 파싱 실패:`, error);
+          continue;
+        }
       }
     }
   }
