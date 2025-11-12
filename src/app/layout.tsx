@@ -19,9 +19,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className={inter.className}>
         <DatadogProvider />
-        <div className="min-h-screen bg-slate-50">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

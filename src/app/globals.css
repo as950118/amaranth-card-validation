@@ -2,73 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SVG 최적화 스타일 */
+/* SVG 아이콘 크기 최적화 */
 @layer utilities {
-  /* SVG 아이콘 크기 최적화 */
   .icon-xs {
-    width: 0.75rem;
-    height: 0.75rem;
+    width: 0.625rem;
+    height: 0.625rem;
   }
   
   .icon-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  .icon-md {
     width: 1rem;
     height: 1rem;
   }
   
-  .icon-md {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-  
   .icon-lg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.125rem;
+    height: 1.125rem;
   }
   
   .icon-xl {
-    width: 2rem;
-    height: 2rem;
-  }
-  
-  /* SVG 성능 최적화 */
-  svg {
-    shape-rendering: geometricPrecision;
-    text-rendering: optimizeLegibility;
-  }
-  
-  /* SVG 애니메이션 최적화 */
-  .animate-spin svg {
-    transform-origin: center;
-  }
-  
-  /* SVG 색상 전환 최적화 */
-  svg {
-    transition: color 0.2s ease-in-out;
-  }
-  
-  /* 그라데이션 텍스트 최적화 */
-  .bg-clip-text {
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-  
-  /* 부드러운 애니메이션 */
-  .transition-all {
-    transition: all 0.3s ease;
-  }
-  
-  /* 호버 효과 개선 */
-  .hover-scale-105:hover {
-    transform: scale(1.05);
-  }
-  
-  /* 그림자 효과 개선 */
-  .shadow-xl {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  }
-  
-  .shadow-2xl {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 
@@ -79,9 +37,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f8fafc;
+  background: #0a0e1a;
+  color: #e5e7eb;
   min-height: 100vh;
 }
+
+/* 기본 텍스트 색상 - 명시적으로 지정되지 않은 모든 텍스트 */
+body, body * {
+  color: #e5e7eb;
+}
+
+/* Tailwind 클래스가 적용된 요소는 우선순위가 높으므로 이 규칙이 덮어씀 */
 
 /* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
@@ -89,68 +55,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #0f1419;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #1a1f2e;
   border-radius: 4px;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #1e293b;
 }
-
-/* 그라데이션 애니메이션 */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* 부드러운 페이드 인 효과 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-/* 카드 호버 효과 */
-.card-hover {
-  transition: all 0.3s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-/* 그라데이션 텍스트 효과 */
-.gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-} 
