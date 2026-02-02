@@ -1,110 +1,77 @@
 'use client';
 
-import { useState } from 'react';
-import { parseTextData, ExpenseRecord } from '@/lib/validation';
-import { AlertIcon, DownloadIcon } from './icons';
+import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { parseTextData, parseFileData, serializeRecordsToText, ExpenseRecord } from '@/lib/validation';
+import { downloadExampleText } from '@/lib/exampleData';
+import { encodePayload } from '@/lib/urlPayload';
+import { AlertIcon, AttachIcon, DownloadIcon } from './icons';
 
 interface FileUploadProps {
+  initialText?: string;
   onDataLoaded: (data: ExpenseRecord[]) => void;
+  /** 검증 후 공유 링크가 준비되면 호출 (이력에 저장용) */
+  onShareLinkReady?: (url: string) => void;
 }
 
-// 예시 파일 내용
-const EXAMPLE_TEXT = `순번
-
-거래일자
-
-지출용도
-
-내용
-
-거래처
-
-공급가액
-
-부가세
-
-합계
-
-증빙
-
-프로젝트
-
-사원코드
-
-1
-
-2025.07.01
-
-법인카드_식대(점심)
-
-점심, 백승한
-
-프랭크버거 여의도점
-
-11,454
-
-1,146
-
-12,600
-
-신용카드매출전표(법인)
-
-공통(CMP모니터링팀)
-
-백승한
-
-2
-
-2025.07.01
-
-법인카드_식대(저녁)
-
-저녁, 백승한
-
-별미볶음점2호
-
-11,818
-
-1,182
-
-13,000
-
-신용카드매출전표(법인)
-
-공통(CMP모니터링팀)
-
-백승한
-
-3
-
-2025.07.02
-
-법인카드_식대(점심)
-
-점심, 백승한
-
-지에스(GS)25 브라이튼 여의도1호
-
-11,818
-
-1,182
-
-13,000
-
-신용카드매출전표(법인)
-
-공통(CMP모니터링팀)
-
-백승한`;
-
-export default function FileUpload({ onDataLoaded }: FileUploadProps) {
+export default function FileUpload({ initialText = '', onDataLoaded, onShareLinkReady }: FileUploadProps) {
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [textValue, setTextValue] = useState('');
+  const [textValue, setTextValue] = useState(initialText);
+  const hasAutoValidated = useRef(false);
+
+  // URL에서 받은 초기 텍스트가 있으면 textarea에 반영
+  useEffect(() => {
+    if (initialText) setTextValue(initialText);
+  }, [initialText]);
+
+  // URL 쿼리로 들어온 텍스트는 한 번만 자동 검증
+  useEffect(() => {
+    if (!initialText.trim() || hasAutoValidated.current) return;
+    hasAutoValidated.current = true;
+    setError(null);
+    setIsLoading(true);
+    try {
+      const data = parseTextData(initialText);
+      onDataLoaded(data);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+      setError(`텍스트를 파싱하는 중 오류가 발생했습니다: ${errMsg}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [initialText, onDataLoaded]);
 
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
     setError(null);
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    event.target.value = '';
+    setError(null);
+    setIsLoading(true);
+    try {
+      const records = await parseFileData(file);
+      onDataLoaded(records);
+      // 엑셀/텍스트 업로드 결과도 hash에 저장 (탭 구분 텍스트로 직렬화 후 압축)
+      const serialized = serializeRecordsToText(records);
+      setTextValue(serialized);
+      const encoded = await encodePayload(serialized);
+      if (typeof window !== 'undefined') {
+        const fullUrl = `${window.location.origin}${pathname}#d=${encoded}`;
+        window.history.replaceState(null, '', `${pathname}#d=${encoded}`);
+        onShareLinkReady?.(fullUrl);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+      setError(`파일 처리 중 오류: ${errorMessage}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePaste = async () => {
@@ -119,11 +86,31 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
     try {
       const data = parseTextData(textValue);
       onDataLoaded(data);
+      // hash에 압축 저장 (서버로 안 보내서 431 방지, 공유/북마크 가능)
+      const encoded = await encodePayload(textValue.trim());
+      if (typeof window !== 'undefined') {
+        const fullUrl = `${window.location.origin}${pathname}#d=${encoded}`;
+        window.history.replaceState(null, '', `${pathname}#d=${encoded}`);
+        onShareLinkReady?.(fullUrl);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
       setError(`텍스트를 파싱하는 중 오류가 발생했습니다: ${errorMessage}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCopyShareLink = async () => {
+    const text = textValue.trim();
+    if (!text) return;
+    try {
+      const encoded = await encodePayload(text);
+      const url = `${typeof window !== 'undefined' ? window.location.origin : ''}${pathname}#d=${encoded}`;
+      await navigator.clipboard.writeText(url);
+      setError(null);
+    } catch {
+      setError('링크 복사에 실패했습니다.');
     }
   };
 
@@ -133,73 +120,93 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
   };
 
   const handleDownloadExample = () => {
-    const blob = new Blob([EXAMPLE_TEXT], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = '예시_법인카드_지출내역.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    downloadExampleText();
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="space-y-3">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-gray-300">텍스트 입력</label>
-          <button
-            onClick={handleDownloadExample}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1a1f2e] text-gray-300 rounded-lg hover:bg-[#1e293b] transition-colors text-xs font-medium"
-          >
-            <DownloadIcon className="text-gray-300" size="xs" />
-            예시 파일 다운로드
-          </button>
-        </div>
-        <div className="relative">
+    <div className="w-full">
+      {/* ChatGPT 스타일 입력 카드 - 둥근 박스 */}
+      <div className="rounded-2xl border border-[#404040] bg-[#2f2f2f] shadow-lg overflow-hidden focus-within:border-[#565656] transition-colors">
+        <div className="p-3 sm:p-4">
           <textarea
             value={textValue}
             onChange={handleTextChange}
-            placeholder="법인카드 지출 내역 텍스트를 여기에 붙여넣어주세요..."
-            className="w-full h-64 px-4 py-3 bg-[#0f1419] border border-[#1a1f2e] rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] resize-none font-mono"
+            placeholder="지출 내역 텍스트를 붙여넣거나, 아래에서 엑셀 파일을 선택하세요..."
+            className="w-full min-h-[140px] sm:min-h-[160px] px-0 py-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none resize-none"
             disabled={isLoading}
+            rows={5}
           />
         </div>
-        
-        <div className="flex items-center gap-2">
+
+        {/* 하단 액션 바 - ChatGPT 입력창 하단 스타일 */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-2.5 border-t border-[#404040] bg-[#262626]/50">
+          <div className="flex items-center gap-1">
+            <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+              <AttachIcon className="text-current" size="md" />
+              <span>엑셀 선택</span>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileSelect}
+                disabled={isLoading}
+                className="sr-only"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={handleDownloadExample}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+            >
+              <DownloadIcon className="text-current" size="xs" />
+              <span>예시 다운로드</span>
+            </button>
+            {textValue.trim() && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleCopyShareLink}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  title="현재 텍스트가 담긴 링크를 복사합니다"
+                >
+                  링크로 저장
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="inline-flex items-center px-2.5 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                >
+                  지우기
+                </button>
+              </>
+            )}
+          </div>
           <button
             onClick={handlePaste}
             disabled={isLoading || !textValue.trim()}
-            className="flex-1 px-4 py-2.5 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white text-gray-900 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            title="검증하기"
+            aria-label="검증하기"
           >
-            {isLoading ? '처리 중...' : '검증하기'}
-          </button>
-          <button
-            onClick={handleClear}
-            disabled={isLoading}
-            className="px-4 py-2.5 bg-[#1a1f2e] text-gray-300 rounded-lg hover:bg-[#1e293b] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            지우기
+            {isLoading ? (
+              <span className="text-xs font-medium text-gray-900">...</span>
+            ) : (
+              <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="inline-block shrink-0 text-gray-900" aria-hidden>
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
-      
-      <div className="mt-4 p-3 bg-[#1a1f2e] border border-[#1e293b] rounded-lg">
-        <p className="text-xs text-gray-400 leading-relaxed">
-          <span className="font-medium text-gray-300">💡 사용 방법:</span> 예시 파일을 다운로드하여 형식을 확인하거나, 
-          엑셀에서 데이터를 복사하여 위 텍스트 영역에 붙여넣으세요. 
-          각 레코드는 11개 필드(순번, 거래일자, 지출용도, 내용, 거래처, 공급가액, 부가세, 합계, 증빙, 프로젝트, 사원코드)로 구성되며, 
-          새 줄로 구분된 형식 또는 탭으로 구분된 형식을 지원합니다.
-        </p>
-      </div>
-      
+
+      {/* 엑셀만 올렸을 때도 검증 가능하므로 안내 문구 */}
+      <p className="mt-2 text-xs text-gray-500 text-center">
+        엑셀(.xlsx, .xls) 또는 탭/줄바꿈으로 구분된 텍스트를 지원합니다
+      </p>
+
       {error && (
-        <div className="mt-4 p-3 bg-[#1a1f2e] border border-[#dc2626] rounded-lg">
-          <div className="flex items-center gap-2">
-            <AlertIcon className="text-[#f87171] flex-shrink-0" size="sm" />
-            <p className="text-xs text-[#fca5a5]">{error}</p>
-          </div>
+        <div className="mt-3 flex items-start gap-2 p-3 rounded-xl bg-[#3d2a2a] border border-[#5c3a3a]">
+          <AlertIcon className="text-[#f87171] shrink-0 mt-0.5" size="xs" />
+          <p className="text-sm text-[#fca5a5]">{error}</p>
         </div>
       )}
     </div>

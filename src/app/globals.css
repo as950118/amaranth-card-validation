@@ -2,52 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SVG 아이콘 크기 최적화 */
-@layer utilities {
-  .icon-xs {
-    width: 0.625rem;
-    height: 0.625rem;
-  }
-  
-  .icon-sm {
-    width: 0.875rem;
-    height: 0.875rem;
-  }
-  
-  .icon-md {
-    width: 1rem;
-    height: 1rem;
-  }
-  
-  .icon-lg {
-    width: 1.125rem;
-    height: 1.125rem;
-  }
-  
-  .icon-xl {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-}
-
-/* 기본 스타일 */
+/* 기본 스타일 - ChatGPT 스타일 다크 배경 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0a0e1a;
-  color: #e5e7eb;
+  background: #212121;
+  color: #ececec;
   min-height: 100vh;
 }
 
-/* 기본 텍스트 색상 - 명시적으로 지정되지 않은 모든 텍스트 */
-body, body * {
-  color: #e5e7eb;
+/* 기본 텍스트 색상 (body만 적용해 버튼 등 자식의 text-* 클래스가 우선하도록) */
+body {
+  color: #ececec;
 }
 
-/* Tailwind 클래스가 적용된 요소는 우선순위가 높으므로 이 규칙이 덮어씀 */
+/* 링크: 다크 배경에서 보이도록 파란색 제거 */
+a {
+  color: #94a3b8;
+  text-decoration: none;
+}
+a:hover {
+  color: #e2e8f0;
+}
 
 /* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
@@ -55,16 +34,16 @@ body, body * {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f1419;
+  background: #2f2f2f;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1a1f2e;
+  background: #404040;
   border-radius: 4px;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1e293b;
+  background: #565656;
 }

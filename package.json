@@ -1,6 +1,6 @@
 {
   "name": "amaranth-card-validation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "법인카드 지출 내역 검증 시스템",
   "main": "index.js",
   "scripts": {

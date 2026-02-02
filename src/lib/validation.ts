@@ -72,12 +72,13 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
         });
       }
       
-      // 내용 형식 검증 (점심/저녁, 이름 형식)
-      const expectedPattern = `${mealType}, ${name}`;
-      if (!content.includes(expectedPattern)) {
+      // 내용 형식 검증 (점심/저녁, 이름 형식 - 쉼표 뒤 공백 유무 모두 허용)
+      const withSpace = `${mealType}, ${name}`;
+      const noSpace = `${mealType},${name}`;
+      if (!content.includes(withSpace) && !content.includes(noSpace)) {
         warnings.push({
           rowNum: idx + 2,
-          reason: `내용 형식이 예상과 다름 (예상: '${expectedPattern}')`,
+          reason: `내용 형식이 예상과 다름 (예상: '${mealType}, 사원명' 또는 '${mealType},사원명')`,
           content: content
         });
       }
@@ -184,32 +185,61 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
   };
 }
 
+/** ExpenseRecord[]를 parseTextData가 읽을 수 있는 탭 구분 텍스트로 직렬화 (엑셀→링크 공유용) */
+export function serializeRecordsToText(records: ExpenseRecord[]): string {
+  const header = '순번';
+  const rows = records.map((r) =>
+    [
+      r.순번,
+      r.거래일자,
+      r.지출용도,
+      r.내용,
+      r.거래처,
+      String(r.공급가액),
+      String(r.부가세),
+      String(r.합계),
+      r.증빙,
+      r.프로젝트,
+      r.사원코드,
+    ].join('\t')
+  );
+  return [header, ...rows].join('\n');
+}
+
 // 텍스트 파일 파싱 함수
 export function parseTextData(content: string): ExpenseRecord[] {
-  const lines = content.split('\n').map(line => line.trim());
+  // BOM 제거, 줄바꿈 정규화 (\r\n, \r → \n) 후 trim
+  const normalized = content.replace(/\ufeff/g, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = normalized.split('\n').map(line => line.trim());
   const records: ExpenseRecord[] = [];
   
-  // 헤더 찾기
+  // 헤더 찾기: '순번' 단독 줄 또는 '순번\t거래일자\t...' (탭 구분 헤더 행)
   let dataStartIndex = -1;
   let headerFound = false;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    if (line === '') continue;
     if (line === '순번') {
-      // 헤더 시작 찾음
       headerFound = true;
-      // 헤더 다음의 빈 줄들을 건너뛰고 데이터 시작점 찾기
       for (let j = i + 1; j < lines.length; j++) {
-        if (lines[j] !== '' && !isNaN(Number(lines[j]))) {
+        if (lines[j] === '') continue;
+        const firstPart = lines[j].split('\t')[0]?.trim() ?? '';
+        if (firstPart !== '' && !isNaN(Number(firstPart))) {
           dataStartIndex = j;
           break;
         }
       }
       break;
     }
+    if (line.startsWith('순번\t')) {
+      headerFound = true;
+      dataStartIndex = i + 1;
+      break;
+    }
   }
   
-  if (!headerFound || dataStartIndex === -1) {
+  if (!headerFound || dataStartIndex === -1 || dataStartIndex >= lines.length) {
     throw new Error('올바른 형식의 텍스트 파일이 아닙니다. 헤더를 찾을 수 없습니다.');
   }
   
@@ -345,11 +375,53 @@ export function parseTextData(content: string): ExpenseRecord[] {
   return records;
 }
 
-// 엑셀 파일 파싱 함수
+// 엑셀 셀 값을 YYYY.MM.DD 문자열로 변환 (정산내역.xlsx 등 엑셀 날짜 형식 지원)
+function formatExcelDateToYYYYMMDD(value: unknown): string {
+  if (value == null || value === '') return '';
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (/^\d{4}\.\d{2}\.\d{2}$/.test(trimmed)) return trimmed;
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}.${m}.${day}`;
+    }
+    return trimmed;
+  }
+  if (typeof value === 'number') {
+    // Excel serial date (1900-01-01 = 1)
+    const epoch = new Date(1899, 11, 31);
+    const d = new Date(epoch.getTime() + value * 86400000);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}.${m}.${day}`;
+  }
+  if (value instanceof Date) {
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${y}.${m}.${day}`;
+  }
+  return String(value);
+}
+
+// 엑셀 셀 값을 숫자로 변환 (정산내역.xlsx 등 숫자/문자 혼용 지원)
+function parseExcelNumber(value: unknown): number {
+  if (value == null || value === '') return 0;
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  const s = String(value).replace(/,/g, '').trim();
+  const n = Number(s);
+  return isNaN(n) ? 0 : n;
+}
+
+// 엑셀 파일 파싱 함수 (기존 법인카드 엑셀 + 정산내역.xlsx 양식 지원)
 export function parseExcelData(file: File): Promise<ExpenseRecord[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
@@ -357,28 +429,38 @@ export function parseExcelData(file: File): Promise<ExpenseRecord[]> {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = require('xlsx').utils.sheet_to_json(worksheet);
-        
-        // 데이터 변환
-        const records: ExpenseRecord[] = jsonData.map((row: any, index: number) => ({
-          순번: String(row['순번'] || index + 1),
-          거래일자: String(row['거래일자'] || ''),
-          지출용도: String(row['지출용도'] || ''),
-          내용: String(row['내용'] || ''),
-          거래처: String(row['거래처'] || ''),
-          공급가액: Number(String(row['공급가액'] || '0').replace(/,/g, '')),
-          부가세: Number(String(row['부가세'] || '0').replace(/,/g, '')),
-          합계: Number(String(row['합계'] || '0').replace(/,/g, '')),
-          증빙: String(row['증빙'] || ''),
-          프로젝트: String(row['프로젝트'] || ''),
-          사원코드: String(row['사원코드'] || '')
-        }));
-        
+
+        const records: ExpenseRecord[] = jsonData
+          .map((row: Record<string, unknown>, index: number) => ({
+            순번: String(row['순번'] ?? index + 1),
+            거래일자: formatExcelDateToYYYYMMDD(row['거래일자']),
+            지출용도: String(row['지출용도'] ?? ''),
+            내용: String(row['내용'] ?? ''),
+            거래처: String(row['거래처'] ?? ''),
+            공급가액: parseExcelNumber(row['공급가액']),
+            부가세: parseExcelNumber(row['부가세']),
+            합계: parseExcelNumber(row['합계']),
+            증빙: String(row['증빙'] ?? ''),
+            프로젝트: String(row['프로젝트'] ?? ''),
+            사원코드: String(row['사원코드'] ?? ''),
+          }))
+          .filter(
+            (r: ExpenseRecord) =>
+              (r.순번?.trim() ?? '') !== '' &&
+              (r.거래일자?.trim() ?? '') !== '' &&
+              (r.지출용도?.trim() ?? '') !== ''
+          );
+
+        if (records.length === 0) {
+          reject(new Error('엑셀에서 파싱된 데이터가 없습니다. 헤더(순번, 거래일자, 지출용도 등)와 데이터 행을 확인해주세요.'));
+          return;
+        }
         resolve(records);
       } catch (error) {
         reject(error);
       }
     };
-    
+
     reader.onerror = () => reject(new Error('파일 읽기 실패'));
     reader.readAsArrayBuffer(file);
   });
