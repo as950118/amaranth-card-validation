@@ -71,16 +71,17 @@ export function validateCardExpenses(data: ExpenseRecord[]): ValidationResult {
           content: content
         });
       }
-      
-      // 내용 형식 검증 (점심/저녁, 이름 형식 - 쉼표 뒤 공백 유무 모두 허용)
-      const withSpace = `${mealType}, ${name}`;
-      const noSpace = `${mealType},${name}`;
-      if (!content.includes(withSpace) && !content.includes(noSpace)) {
-        warnings.push({
-          rowNum: idx + 2,
-          reason: `내용 형식이 예상과 다름 (예상: '${mealType}, 사원명' 또는 '${mealType},사원명')`,
-          content: content
-        });
+      else{
+        // 내용 형식 검증 (점심/저녁, 이름 형식 - 쉼표 뒤 공백 0개 이상 모두 허용)
+        const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const formatPattern = new RegExp(`${mealType},\\s*${escapedName}`);
+        if (!formatPattern.test(content)) {
+          warnings.push({
+            rowNum: idx + 2,
+            reason: `내용 형식이 예상과 다름 (예상: '${mealType}, 사원명' 또는 '${mealType},사원명')`,
+            content: content
+          });
+        }
       }
     }
   }
